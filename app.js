@@ -5,7 +5,7 @@ menu.addEventListener('click',function(e){if(e.target.closest('a')){top.classLis
 /* aktywna pozycja menu */
 var links=[].slice.call(menu.querySelectorAll('a')),secs=links.map(function(a){var h=a.getAttribute('href');return h.length>1?document.querySelector(h):null;});
 function akt(){var y=scrollY+innerHeight*0.35,i=0;secs.forEach(function(s,k){if(s&&s.offsetTop<=y)i=k;});links.forEach(function(a,k){if(k===i)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});}
-addEventListener('scroll',akt,{passive:true});
+var tk=0;addEventListener('scroll',function(){if(tk)return;tk=requestAnimationFrame(function(){tk=0;akt();});},{passive:true});
 /* pasek mobilny po przewinieciu za przycisk hero */
 var mob=document.getElementById('mob'),cta=document.querySelector('.hero .btn');
 if('IntersectionObserver' in window){new IntersectionObserver(function(en){var e=en[0];mob.classList.toggle('widac',!e.isIntersecting&&e.boundingClientRect.top<0);}).observe(cta);}
@@ -13,11 +13,11 @@ if('IntersectionObserver' in window){new IntersectionObserver(function(en){var e
 var pas=document.getElementById('pas'),lic=document.getElementById('lic'),pp=document.getElementById('pp'),nn=document.getElementById('nn'),karty=pas.children;
 function krok(){return karty[1].offsetLeft-karty[0].offsetLeft;}
 function idx(){return Math.round(pas.scrollLeft/krok());}
-function odsw(){var i=Math.min(idx(),karty.length-1);lic.textContent=(i+1)+' / '+karty.length;pp.disabled=pas.scrollLeft<4;nn.disabled=pas.scrollLeft+pas.clientWidth>=pas.scrollWidth-4;}
+function odsw(){var sl=pas.scrollLeft,cw=pas.clientWidth,sw=pas.scrollWidth,i=Math.min(idx(),karty.length-1);lic.textContent=(i+1)+' / '+karty.length;pp.disabled=sl<4;nn.disabled=sl+cw>=sw-4;}
 pas.addEventListener('scroll',odsw,{passive:true});
 pp.addEventListener('click',function(){pas.scrollBy({left:-krok(),behavior:'smooth'});});
 nn.addEventListener('click',function(){pas.scrollBy({left:krok(),behavior:'smooth'});});
-odsw();
+if('IntersectionObserver' in window){var iop=new IntersectionObserver(function(en){if(en[0].isIntersecting){odsw();iop.disconnect();}});iop.observe(pas);}
 /* przeciaganie mysza w pasach */
 [].forEach.call(document.querySelectorAll('.linie,.zdj3,.ludzie'),function(el){var d=false,x0,s0,ruch=0;
 el.addEventListener('pointerdown',function(e){if(e.pointerType!=='mouse'||el.scrollWidth<=el.clientWidth)return;d=true;ruch=0;x0=e.clientX;s0=el.scrollLeft;el.style.scrollSnapType='none';});
